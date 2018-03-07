@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.summary      = "YTLiveStreaming is a YouTube Live Streaming Framework"
   s.requires_arc = true
 
-  s.version      = "0.1.10"
+  s.version      = "0.2.7"
 
   # Initialize
   # Check podspec
@@ -20,13 +20,13 @@ Pod::Spec.new do |s|
   # git push -u origin master
 
   # Make for new version:
-  # 1. git tag 0.1.10
+  # 1. git tag 0.2.7
   # 2. git push -u origin master --tags
-  # 3. pod spec lint YTLiveStreaming.podspec --allow-warnings
+  # 3. pod spec lint YTLiveStreaming.podspec --allow-warnings --swift-version=4.0
   # Push podspec with the new version info
   # Create session:
   # 4. pod trunk register sergey.krotkih@gmail.com "Sergey Krotkih" --description="CocoaPods Session for the YTLiveStreaming"
-  # 5. pod trunk push YTLiveStreaming.podspec --verbose --allow-warnings
+  # 5. pod trunk push YTLiveStreaming.podspec --verbose --allow-warnings --swift-version=4.0
 
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.author       = { "Sergey Krotkih" => "sergey.krotkih@gmail.com" }
@@ -35,10 +35,10 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/SKrotkih/YTLiveStreaming.git", :tag => s.version.to_s }
 
   s.frameworks   = "UIKit"
-  s.dependency 'Moya', '8.0.0-beta.6'
-  s.dependency 'AlamofireOauth2'
+  s.dependency 'Moya', '10.0.0'
   s.dependency 'LFLiveKit'
   s.dependency 'SwiftyJSON'
+  s.dependency 'KeychainAccess'
 
   s.source_files = "YTLiveStreaming/**/*.{swift,h,m}"
 

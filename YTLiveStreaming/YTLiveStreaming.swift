@@ -137,7 +137,7 @@ extension YTLiveStreaming {
    public func startBroadcast(_ broadcast: LiveBroadcastStreamModel, delegate: YTLiveStreamingDelegate, completion: @escaping (String?, String?, Date?) -> Void) {
       let broadcastId = broadcast.id
       let liveStreamId = broadcast.contentDetails.boundStreamId
-      if broadcastId.characters.count > 0 &&  liveStreamId.characters.count > 0 {
+      if !broadcastId.isEmpty &&  !liveStreamId.isEmpty {
          YTLiveRequest.getLiveBroadcast(broadcastId: broadcastId) { liveBroadcast in
             if let liveBroadcast = liveBroadcast {
                YTLiveRequest.getLiveStream(liveStreamId, completion: { liveStream in
@@ -262,8 +262,8 @@ extension YTLiveStreaming {
       })
    }
    
-   public func isYouTubeAvailable(completion: (Bool) -> Void) {
-      GoogleOAuth2.sharedInstance.isAccessTokenPresented(completion: completion)
+   public func isYouTubeAvailable() -> Bool {
+      return GoogleOAuth2.sharedInstance.isAccessTokenPresented
    }
 }
 
@@ -320,14 +320,3 @@ extension YTLiveStreaming {
    
 }
 
-// MARK: - GooglePlus API
-
-extension YTLiveStreaming {
-   
-   public func aboutMeInfo(completion: @escaping (GooglePlusAboutMeModel?) -> Void) {
-      GooglePlusRequest.aboutMeInfo(completion: { aboutMeInfo in
-         completion(aboutMeInfo)
-      })
-   }
-   
-}

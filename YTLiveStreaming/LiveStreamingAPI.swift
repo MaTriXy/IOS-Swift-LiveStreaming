@@ -20,21 +20,30 @@ private func JSONResponseDataFormatter(_ data: Data) -> Data {
    }
 }
 
-let BaseURL = "https://www.googleapis.com/youtube/v3"
-
 let requestClosure = { (endpoint: Moya.Endpoint<LiveStreamingAPI>, done: @escaping MoyaProvider<LiveStreamingAPI>.RequestResultClosure) in
    GoogleOAuth2.sharedInstance.requestToken() { token in
       if let token = token {
-         var request = endpoint.urlRequest! as URLRequest
-         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-         var nserror: NSError! = NSError(domain: "LiveStreamingAPIHttp", code: 0, userInfo: nil)
-         let error = Moya.Error.underlying(nserror)
-         done(Result(request, failWith: error))
+         do {
+            var request = try endpoint.urlRequest() as URLRequest
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.addValue(Bundle.main.bundleIdentifier!, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
+            var nserror: NSError! = NSError(domain: "LiveStreamingAPIHttp", code: 0, userInfo: nil)
+            let error = MoyaError.underlying(nserror, nil)
+            done(Result(request, failWith: error))
+         }
+         catch {
+            
+         }
       } else {
-         var nserror: NSError! = NSError(domain: "LiveStreamingAPIHttp", code: 4000, userInfo: ["NSLocalizedDescriptionKey": "Failed Google OAuth2 request token"])
-         let error = Moya.Error.underlying(nserror)
-         let request = endpoint.urlRequest! as URLRequest
-         done(Result(request, failWith: error))
+         do {
+            let request = try endpoint.urlRequest() as URLRequest
+            var nserror: NSError! = NSError(domain: "LiveStreamingAPIHttp", code: 4000, userInfo: ["NSLocalizedDescriptionKey": "Failed Google OAuth2 request token"])
+            let error = MoyaError.underlying(nserror, nil)
+            done(Result(request, failWith: error))
+         }
+         catch {
+            
+         }
       }
    }
 }
@@ -52,7 +61,27 @@ enum LiveStreamingAPI {
 }
 
 extension LiveStreamingAPI: TargetType {
-   public var baseURL: URL { return URL(string: BaseURL)! }
+   
+   public var baseURL: URL { return URL(string: LiveAPI.BaseURL)! }
+   
+   public var path: String {
+      switch self {
+      case .listBroadcasts(_):
+         return "/liveBroadcasts"
+      case .liveBroadcast(_):
+         return "/liveBroadcasts"
+      case .transitionLiveBroadcast(_):
+         return "/liveBroadcasts/transition"
+      case .deleteLiveBroadcast(_):
+         return "/liveBroadcasts"
+      case .bindLiveBroadcast(_):
+         return "/liveBroadcasts/bind"
+      case .liveStream(_):
+         return "/liveStreams"
+      case .deleteLiveStream(_):
+         return "/liveStreams"
+      }
+   }
    
    public var method: Moya.Method {
       switch self {
@@ -73,23 +102,22 @@ extension LiveStreamingAPI: TargetType {
       }
    }
    
-   public var path: String {
+   public var task: Task {
       switch self {
-      case .listBroadcasts(_):
-         return "/liveBroadcasts"
-      case .liveBroadcast(_):
-         return "/liveBroadcasts"
-      case .transitionLiveBroadcast(_):
-         return "/liveBroadcasts/transition"
-      case .deleteLiveBroadcast(_):
-         return "/liveBroadcasts"
-      case .bindLiveBroadcast(_):
-         return "/liveBroadcasts/bind"
-      case .liveStream(_):
-         return "/liveStreams"
-      case .deleteLiveStream(_):
-         return "/liveStreams"
-         
+      case .listBroadcasts(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+      case .liveBroadcast(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+      case .transitionLiveBroadcast(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+      case .deleteLiveBroadcast(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+      case .bindLiveBroadcast(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+      case .liveStream(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+      case .deleteLiveStream(let parameters):
+         return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
       }
    }
    
@@ -136,10 +164,9 @@ extension LiveStreamingAPI: TargetType {
       return []
    }
    
-   public var task: Task {
-      return .request
+   var headers: [String : String]? {
+      return ["Content-type": "application/json"]
    }
-   
 }
 
 public func url(_ route: TargetType) -> String {
